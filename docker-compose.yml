@@ -1,0 +1,31 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/application/Dockerfile
+    volumes:
+      - ./:/app
+    links:
+      - hub
+      - chrome
+  hub:
+    image: selenium/hub:3.4.0-einsteinium
+    ports:
+      - 4444:4444
+  chrome:
+      image: selenium/node-chrome-debug:3.4.0-einsteinium
+      ports:
+        - 15900:5900
+      depends_on:
+        - hub
+      environment:
+        - no_proxy=localhost
+        - HUB_PORT_4444_TCP_ADDR=hub
+        - HUB_PORT_4444_TCP_PORT=4444
+        - HUB_ENV_no_proxy=localhost
+      volumes:
+        - ./Downloads:/home/seluser/Downloads
+volumes:
+  pgsql-data:
+    driver: local
